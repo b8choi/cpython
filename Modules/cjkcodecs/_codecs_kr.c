@@ -118,36 +118,19 @@ DECODER(euc_kr)
 
         REQUIRE_INBUF(2);
 
-        if (c == EUCKR_JAMO_FIRSTBYTE &&
-            INBYTE2 == EUCKR_JAMO_FILLER) {
+        if (
+            inleft >= 8 &&
+            ((*inbuf)[0] == EUCKR_JAMO_FIRSTBYTE && (*inbuf)[1] == EUCKR_JAMO_FILLER) &&
+            ((*inbuf)[2] == EUCKR_JAMO_FIRSTBYTE && 0xa1 <= (*inbuf)[3] && (*inbuf)[3] <= 0xbe) &&
+            ((*inbuf)[4] == EUCKR_JAMO_FIRSTBYTE && 0xbf <= (*inbuf)[5] && (*inbuf)[5] <= 0xd3) &&
+            ((*inbuf)[6] == EUCKR_JAMO_FIRSTBYTE && (0xa1 <= (*inbuf)[7] && (*inbuf)[7] <= 0xbe || (*inbuf)[7] == EUCKR_JAMO_FILLER))
+        ) {
             /* KS X 1001:1998 Annex 3 make-up sequence */
             DBCHAR cho, jung, jong;
 
-            REQUIRE_INBUF(8);
-            if ((*inbuf)[2] != EUCKR_JAMO_FIRSTBYTE ||
-                (*inbuf)[4] != EUCKR_JAMO_FIRSTBYTE ||
-                (*inbuf)[6] != EUCKR_JAMO_FIRSTBYTE)
-                return 1;
-
-            c = (*inbuf)[3];
-            if (0xa1 <= c && c <= 0xbe)
-                cho = cgk2u_choseong[c - 0xa1];
-            else
-                cho = NONE;
-
-            c = (*inbuf)[5];
-            jung = (0xbf <= c && c <= 0xd3) ? c - 0xbf : NONE;
-
-            c = (*inbuf)[7];
-            if (c == EUCKR_JAMO_FILLER)
-                jong = 0;
-            else if (0xa1 <= c && c <= 0xbe)
-                jong = cgk2u_jongseong[c - 0xa1];
-            else
-                jong = NONE;
-
-            if (cho == NONE || jung == NONE || jong == NONE)
-                return 1;
+            cho = cgk2u_choseong[(*inbuf)[3] - 0xa1];
+            jung = (*inbuf)[5] - 0xbf;
+            jong = (*inbuf)[7] == EUCKR_JAMO_FILLER ? 0 : cgk2u_jongseong[(*inbuf)[7] - 0xa1];
 
             OUTCHAR(0xac00 + cho*588 + jung*28 + jong);
             NEXT_IN(8);
