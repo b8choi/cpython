@@ -123,7 +123,7 @@ DECODER(euc_kr)
             ((*inbuf)[0] == EUCKR_JAMO_FIRSTBYTE && (*inbuf)[1] == EUCKR_JAMO_FILLER) &&
             ((*inbuf)[2] == EUCKR_JAMO_FIRSTBYTE && 0xa1 <= (*inbuf)[3] && (*inbuf)[3] <= 0xbe) &&
             ((*inbuf)[4] == EUCKR_JAMO_FIRSTBYTE && 0xbf <= (*inbuf)[5] && (*inbuf)[5] <= 0xd3) &&
-            ((*inbuf)[6] == EUCKR_JAMO_FIRSTBYTE && (0xa1 <= (*inbuf)[7] && (*inbuf)[7] <= 0xbe || (*inbuf)[7] == EUCKR_JAMO_FILLER))
+            ((*inbuf)[6] == EUCKR_JAMO_FIRSTBYTE && ((0xa1 <= (*inbuf)[7] && (*inbuf)[7] <= 0xbe) || (*inbuf)[7] == EUCKR_JAMO_FILLER))
         ) {
             /* KS X 1001:1998 make-up sequence */
             DBCHAR cho, jung, jong;
